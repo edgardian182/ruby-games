@@ -35,32 +35,32 @@ class Deck
   def build_deck
 
     # Simbolos a usar para crear las cartas
-    spade = ""
-    heart = ""
-    club = ""
-    diamond = ""
-    joker = ""
+    @spade = ""
+    @heart = ""
+    @club = ""
+    @diamond = ""
+    @joker = ""
     File.foreach(Dir.pwd + "/s_spade.txt") do |line|
-      spade = line
+      @spade = line
     end
 
     File.foreach(Dir.pwd + "/s_heart.txt") do |line|
-      heart = line
+      @heart = line
     end
 
     File.foreach(Dir.pwd + "/s_club.txt") do |line|
-      club = line
+      @club = line
     end
 
     File.foreach(Dir.pwd + "/s_diamond.txt") do |line|
-      diamond = line
+      @diamond = line
     end
 
     File.foreach(Dir.pwd + "/s_joker.txt") do |line|
-      joker = line
+      @joker = line
     end
 
-    [heart, club, spade, diamond].each do |suit|
+    [@heart, @club, @spade, @diamond].each do |suit|
       (2..10).each do |number|
         @cards << Card.new(suit, number)
       end
@@ -69,10 +69,25 @@ class Deck
       end
     end
     ["R", "B"].each do |color|
-      @cards << Card.new(color, joker)
+      @cards << Card.new(color, @joker)
     end
     # Revolvemos las cartas
     @cards.shuffle!
+  end
+
+  # Metodo para destruir las cartas
+  def destroy_deck
+    [@heart, @club, @spade, @diamond].each do |suit|
+      (2..10).each do |number|
+        File.delete(Dir.pwd + "/#{number}_#{suit}.txt")
+      end
+      ["J", "Q", "K", "A"].each do |face|
+        File.delete(Dir.pwd + "/#{face}_#{suit}.txt")
+      end
+    end
+    ["R", "B"].each do |color|
+      File.delete(Dir.pwd + "/#{@joker}_#{color}.txt")
+    end
   end
 
   def take!
@@ -132,20 +147,28 @@ while abrir != "correcto"
   abrir = gets.chomp
   case abrir
   when "A"
-    puts "Cartas jugador_1 en posicion 1 y 2: #{player1.cards[0]}    #{player1.cards[1]}"
-    puts "Cartas jugador_2 en posicion 1 y 2: #{player2.cards[0]}    #{player2.cards[1]}"
+    puts "Cartas jugador_1 en posicion 1 y 2:"
+    puts " #{player1.cards[0]}    #{player1.cards[1]}"
+    puts "Cartas jugador_2 en posicion 1 y 2:"
+    puts " #{player2.cards[0]}    #{player2.cards[1]}"
     abrir = "correcto"
   when "B"
-    puts "Cartas jugador_1 en posicion 3 y 4: #{player1.cards[2]}    #{player1.cards[3]}"
-    puts "Cartas jugador_2 en posicion 3 y 4: #{player2.cards[2]}    #{player2.cards[3]}"
+    puts "Cartas jugador_1 en posicion 3 y 4:"
+    puts " #{player1.cards[2]}    #{player1.cards[3]}"
+    puts "Cartas jugador_2 en posicion 3 y 4:"
+    puts " #{player2.cards[2]}    #{player2.cards[3]}"
     abrir = "correcto"
   when "C"
-    puts "Cartas jugador_1 en posicion 1 y 3: #{player1.cards[0]}    #{player1.cards[2]}"
-    puts "Cartas jugador_2 en posicion 1 y 3: #{player2.cards[0]}    #{player2.cards[2]}"
+    puts "Cartas jugador_1 en posicion 1 y 3:"
+    puts " #{player1.cards[0]}    #{player1.cards[2]}"
+    puts "Cartas jugador_2 en posicion 1 y 3:"
+    puts " #{player2.cards[0]}    #{player2.cards[2]}"
     abrir = "correcto"
   when "D"
-    puts "Cartas jugador_1 en posicion 2 y 4: #{player1.cards[1]}    #{player1.cards[3]}"
-    puts "Cartas jugador_2 en posicion 2 y 4: #{player2.cards[1]}    #{player2.cards[3]}"
+    puts "Cartas jugador_1 en posicion 2 y 4:"
+    puts " #{player1.cards[1]}    #{player1.cards[3]}"
+    puts "Cartas jugador_2 en posicion 2 y 4:"
+    puts " #{player2.cards[1]}    #{player2.cards[3]}"
     abrir = "correcto"
   else
     puts "Opción no valida"
@@ -154,7 +177,6 @@ end
 
 # Variable para guardar las cartas que quedan en el Pozo
 ultima_carta = []
-puts
 
 # Variable que se utiliza para terminar el juego
 terminar_juego = 0
@@ -170,59 +192,67 @@ while terminar_juego < 2
   turno = players.shift
   players << turno
 
-  puts
   puts "Turno #{players[0].name}"
 
   opcion = ""
   while opcion != "correcto"
     # Mostramos la posibilidad de tomar la ultima carta del Pozo si existe una carta en él
-    puts ultima_carta.empty? ? "Tomar carta de Baraja(R)" : "Tomar carta de Baraja(R) o tomar #{ultima_carta[-1]}(T)?"
+    puts ultima_carta.empty? ? "Tomar carta de Baraja(R)" : "Tomar carta de Baraja(R) o tomar del Pozo(T) la carta: "
+    puts "#{ultima_carta[-1]}" if !ultima_carta.empty?
     opcion = gets.chomp
     if opcion == "R"
       ultima_carta << deck.take!
-      puts "Carta: #{ultima_carta[-1]}"
+      puts "Carta: "
+      puts "#{ultima_carta[-1]}"
       opcion = "correcto"
     elsif opcion == "T"
-      puts "Carta: #{ultima_carta[-1]}"
+      puts "Carta: "
+      puts "#{ultima_carta[-1]}"
       opcion = "correcto"
     else
       puts "Opción no valida, toma una carta"
     end
   end
 
-  puts
+
   puts "Deseas cambiar una de tus cartas por la que has tomado? Si(s) / No(n) "
   decision = gets.chomp
+  puts
   if (decision == "s") || (decision == "si") || (decision == "Si") || (decision == "SI")
     puts "Por la carta ubicada en qué lugar? 1? 2? 3? 4?"
     lugar = 10
 
     while lugar
       lugar = gets.chomp.to_i
+      puts
       case lugar
       when 1
         sale = players[0].cards[0]
         players[0].cards[0] = ultima_carta[-1]
         ultima_carta << sale
-        puts "Carta botada: #{ultima_carta[-1]}"
+        puts "Carta botada:"
+        puts " #{ultima_carta[-1]}"
         break
       when 2
         sale = players[0].cards[1]
         players[0].cards[1] = ultima_carta[-1]
         ultima_carta << sale
-        puts "Carta botada: #{ultima_carta[-1]}"
+        puts "Carta botada:"
+        puts " #{ultima_carta[-1]}"
         break
       when 3
         sale = players[0].cards[2]
         players[0].cards[2] = ultima_carta[-1]
         ultima_carta << sale
-        puts "Carta botada: #{ultima_carta[-1]}"
+        puts "Carta botada:"
+        puts " #{ultima_carta[-1]}"
         break
       when 4
         sale = players[0].cards[3]
         players[0].cards[3] = ultima_carta[-1]
         ultima_carta << sale
-        puts "Carta botada: #{ultima_carta[-1]}"
+        puts "Carta botada:"
+        puts " #{ultima_carta[-1]}"
         break
       else
         puts "Solo decide que numero"
@@ -236,6 +266,7 @@ while terminar_juego < 2
     cerrar = gets.chomp
   elsif terminar_juego < 1
     puts "Muy bien, turno siguiente jugador"
+    puts
   else
     puts
     puts "JUEGO TERMINADO"
@@ -247,7 +278,7 @@ while terminar_juego < 2
   end
 end
 
-# PROBLEMA ACA
+# Hacemos suma del valor de cartas para determinar ganador
 r_p1 = 0
 player1.cards.each do |card|
   r_p1 += card.value.to_i
@@ -274,3 +305,6 @@ elsif r_p1 > r_p2
 else
   puts "EMPATADOS"
 end
+
+# Destruimos los archivos de carta creados
+deck.destroy_deck

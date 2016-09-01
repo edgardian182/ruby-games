@@ -30,6 +30,7 @@ class Card
     File.foreach(Dir.pwd + "/#{@value}_#{@suit}.txt") do |line|
       puts line
     end
+    ""
   end
 
 end
